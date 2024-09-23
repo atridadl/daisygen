@@ -93,7 +93,7 @@ func getTailwindBinary() (string, error) {
 	}
 
 	// Create a temporary directory to extract the binary
-	tempDir, err := os.MkdirTemp("", "stylegen-tw")
+	tempDir, err := os.MkdirTemp("", "daisygen-tw")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp directory: %w", err)
 	}

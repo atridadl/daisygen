@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/atridadl/stylegen/internal/generator"
+	"github.com/atridadl/daisygen/internal/generator"
 )
 
 func main() {

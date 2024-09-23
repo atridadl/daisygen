@@ -1,4 +1,4 @@
-BINARY_NAME=stylegen
+BINARY_NAME=daisygen
 
 .PHONY: build install clean
 
