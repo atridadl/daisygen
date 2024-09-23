@@ -27,7 +27,7 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
-          cd stylegen
+          cd daisygen
           go build -o daisygen-${{ matrix.goos }}-${{ matrix.goarch }}
           if [ "${{ matrix.goos }}" = "darwin" ]; then
             mv daisygen-${{ matrix.goos }}-${{ matrix.goarch }} daisygen-macos-${{ matrix.goarch }}
@@ -37,7 +37,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: stylegen/daisygen-${{ matrix.goos == 'darwin' && 'macos' || matrix.goos }}-${{ matrix.goarch }}
+          file: daisygen/daisygen-${{ matrix.goos == 'darwin' && 'macos' || matrix.goos }}-${{ matrix.goarch }}
           asset_name: daisygen-${{ matrix.goos == 'darwin' && 'macos' || matrix.goos }}-${{ matrix.goarch }}
           tag: ${{ github.ref }}
           overwrite: true
