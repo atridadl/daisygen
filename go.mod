@@ -1,3 +1,3 @@
-module github.com/atridadl/stylegen
+module stylegen
 
 go 1.23.1

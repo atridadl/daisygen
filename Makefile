@@ -7,7 +7,7 @@ build:
 	go build -o ${BINARY_NAME} ${MAIN_PATH}
 
 install: build
-	mv ${BINARY_NAME} /usr/local/bin/
+	mv ${BINARY_NAME} ~/go/bin/
 
 clean:
 	go clean
