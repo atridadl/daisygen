@@ -1,13 +1,18 @@
 package generator
 
 import (
+	"embed"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 )
+
+//go:embed embedded/tw
+var embeddedTW embed.FS
 
 func Generate(extensions, directory, outputDir string) error {
 	// Find files
@@ -28,6 +33,8 @@ func Generate(extensions, directory, outputDir string) error {
 	if err != nil {
 		return err
 	}
+	defer os.RemoveAll(filepath.Dir(binary))
+
 	cmd := exec.Command(binary, "build", "-i", "./base.css", "-c", "tailwind.config.js", "-o", filepath.Join(outputDir, "styles.css"), "--minify")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -70,19 +77,11 @@ module.exports = {
 }
 
 func getTailwindBinary() (string, error) {
-	execPath, err := os.Executable()
-	if err != nil {
-		return "", fmt.Errorf("failed to get executable path: %w", err)
-	}
-
-	execDir := filepath.Dir(execPath)
-	twDir := filepath.Join(execDir, "tw")
-
-	osName := runtime.GOOS // Changed from 'os' to 'osName'
+	osName := runtime.GOOS
 	arch := runtime.GOARCH
 
 	var binaryName string
-	switch osName { // Use 'osName' here
+	switch osName {
 	case "darwin":
 		binaryName = fmt.Sprintf("macos-%s", arch)
 	case "linux":
@@ -93,9 +92,32 @@ func getTailwindBinary() (string, error) {
 		return "", fmt.Errorf("unsupported OS: %s", osName)
 	}
 
-	binaryPath := filepath.Join(twDir, binaryName)
-	if _, err := os.Stat(binaryPath); os.IsNotExist(err) {
-		return "", fmt.Errorf("Tailwind binary not found: %s", binaryPath)
+	// Create a temporary directory to extract the binary
+	tempDir, err := os.MkdirTemp("", "stylegen-tw")
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp directory: %w", err)
+	}
+
+	binaryPath := filepath.Join(tempDir, binaryName)
+
+	// Read the embedded file
+	embeddedFile, err := embeddedTW.Open(fmt.Sprintf("embedded/tw/%s", binaryName))
+	if err != nil {
+		return "", fmt.Errorf("failed to open embedded file: %w", err)
+	}
+	defer embeddedFile.Close()
+
+	// Create the binary file
+	outputFile, err := os.OpenFile(binaryPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+	if err != nil {
+		return "", fmt.Errorf("failed to create output file: %w", err)
+	}
+	defer outputFile.Close()
+
+	// Copy the content
+	_, err = io.Copy(outputFile, embeddedFile)
+	if err != nil {
+		return "", fmt.Errorf("failed to write binary: %w", err)
 	}
 
 	return binaryPath, nil
