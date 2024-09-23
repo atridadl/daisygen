@@ -1,10 +1,9 @@
 BINARY_NAME=stylegen
-MAIN_PATH=cmd/stylegen/main.go
 
 .PHONY: build install clean
 
 build:
-	go build -o ${BINARY_NAME} ${MAIN_PATH}
+	go build -o ${BINARY_NAME}
 
 install: build
 	mv ${BINARY_NAME} ~/go/bin/
