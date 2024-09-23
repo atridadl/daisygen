@@ -24,7 +24,10 @@ func Generate(extensions, directory, outputDir string) error {
 	}
 
 	// Run Tailwind CLI
-	binary := getTailwindBinary()
+	binary, err := getTailwindBinary()
+	if err != nil {
+		return err
+	}
 	cmd := exec.Command(binary, "build", "-i", "./base.css", "-c", "tailwind.config.js", "-o", filepath.Join(outputDir, "styles.css"), "--minify")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -66,16 +69,34 @@ module.exports = {
 }`, fileList)
 }
 
-func getTailwindBinary() string {
-	os := runtime.GOOS
-	arch := runtime.GOARCH
-
-	switch os {
-	case "darwin":
-		os = "macos"
-	case "windows":
-		return fmt.Sprintf("./tw/%s-%s.exe", os, arch)
+func getTailwindBinary() (string, error) {
+	execPath, err := os.Executable()
+	if err != nil {
+		return "", fmt.Errorf("failed to get executable path: %w", err)
 	}
 
-	return fmt.Sprintf("./tw/%s-%s", os, arch)
+	execDir := filepath.Dir(execPath)
+	twDir := filepath.Join(execDir, "tw")
+
+	osName := runtime.GOOS // Changed from 'os' to 'osName'
+	arch := runtime.GOARCH
+
+	var binaryName string
+	switch osName { // Use 'osName' here
+	case "darwin":
+		binaryName = fmt.Sprintf("macos-%s", arch)
+	case "linux":
+		binaryName = fmt.Sprintf("linux-%s", arch)
+	case "windows":
+		binaryName = fmt.Sprintf("windows-%s.exe", arch)
+	default:
+		return "", fmt.Errorf("unsupported OS: %s", osName)
+	}
+
+	binaryPath := filepath.Join(twDir, binaryName)
+	if _, err := os.Stat(binaryPath); os.IsNotExist(err) {
+		return "", fmt.Errorf("Tailwind binary not found: %s", binaryPath)
+	}
+
+	return binaryPath, nil
 }
