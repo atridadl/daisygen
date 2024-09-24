@@ -112,7 +112,7 @@ func getTailwindBinary() (string, error) {
 	binaryPath := filepath.Join(tempDir, binaryName)
 
 	// Read the embedded file
-	embeddedFile, err := embeddedTW.Open(fmt.Sprintf("tw/%s", binaryName))
+	embeddedFile, err := embeddedTW.Open(fmt.Sprintf("embed/%s", binaryName))
 	if err != nil {
 		return "", fmt.Errorf("failed to open embedded file: %w", err)
 	}
