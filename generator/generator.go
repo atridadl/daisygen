@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-//go:embed embedded/tw
+//go:embed tw
 var embeddedTW embed.FS
 
 func Generate(extensions, directory, outputDir string) error {
@@ -101,7 +101,7 @@ func getTailwindBinary() (string, error) {
 	binaryPath := filepath.Join(tempDir, binaryName)
 
 	// Read the embedded file
-	embeddedFile, err := embeddedTW.Open(fmt.Sprintf("embedded/tw/%s", binaryName))
+	embeddedFile, err := embeddedTW.Open(fmt.Sprintf("tw/%s", binaryName))
 	if err != nil {
 		return "", fmt.Errorf("failed to open embedded file: %w", err)
 	}
