@@ -7,7 +7,12 @@ import (
 	"github.com/atridadl/daisygen/generator"
 )
 
-const version = "0.1.3"
+const version = "0.1.4"
+
+// Generate exposes the generator functionality for use as a library
+func Generate(extensions, directory, outputDir string) error {
+	return generator.Generate(extensions, directory, outputDir)
+}
 
 func main() {
 	extensions := flag.String("extensions", "", "Comma-separated list of file extensions")
@@ -26,7 +31,7 @@ func main() {
 		log.Fatal("No extensions provided")
 	}
 
-	err := generator.Generate(*extensions, *directory, *outputDir)
+	err := Generate(*extensions, *directory, *outputDir)
 	if err != nil {
 		log.Fatal(err)
 	}
