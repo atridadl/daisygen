@@ -11,8 +11,11 @@ import (
 	"strings"
 )
 
-//go:embed tw
+//go:embed embed
 var embeddedTW embed.FS
+
+//go:embed embed/base.css
+var baseCSS string
 
 func Generate(extensions, directory, outputDir string) error {
 	// Find files
@@ -28,6 +31,14 @@ func Generate(extensions, directory, outputDir string) error {
 		return err
 	}
 
+	// Write the embedded base.css to a temporary file
+	baseCSSPath := filepath.Join(os.TempDir(), "base.css")
+	err = os.WriteFile(baseCSSPath, []byte(baseCSS), 0644)
+	if err != nil {
+		return err
+	}
+	defer os.Remove(baseCSSPath)
+
 	// Run Tailwind CLI
 	binary, err := getTailwindBinary()
 	if err != nil {
@@ -35,7 +46,7 @@ func Generate(extensions, directory, outputDir string) error {
 	}
 	defer os.RemoveAll(filepath.Dir(binary))
 
-	cmd := exec.Command(binary, "build", "-i", "./base.css", "-c", "tailwind.config.js", "-o", filepath.Join(outputDir, "styles.css"), "--minify")
+	cmd := exec.Command(binary, "build", "-i", baseCSSPath, "-c", "tailwind.config.js", "-o", filepath.Join(outputDir, "styles.css"), "--minify")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()

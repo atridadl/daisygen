@@ -7,7 +7,7 @@ import (
 	"github.com/atridadl/daisygen/generator"
 )
 
-const version = "0.1.5"
+const version = "0.1.6"
 
 func main() {
 	extensions := flag.String("extensions", "", "Comma-separated list of file extensions")
